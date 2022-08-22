@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+DYLD_LIBRARY_PATH=/Users/zhupengxuan/Buding/HEPTools/Madgraph/madgraph/HEPTools/lib:$DYLD_LIBRARY_PATH /Users/zhupengxuan/Buding/HEPTools/Madgraph/madgraph/HEPTools/MG5aMC_PY8_interface/MG5aMC_PY8_interface tag_1_pythia8.cmd
