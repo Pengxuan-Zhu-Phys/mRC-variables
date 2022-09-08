@@ -1,0 +1,22 @@
+# BEGIN PLOT
+LegendOnly=//home/buding/Workshop/mRC-variables/Code/ww.yoda/CEPC_SMUON/SR_MIDDELTAM
+DrawOnly=//home/buding/Workshop/mRC-variables/Code/ww.yoda/CEPC_SMUON/SR_MIDDELTAM
+Legend=1
+LogY=1
+# END PLOT
+
+# BEGIN HISTO1D //home/buding/Workshop/mRC-variables/Code/ww.yoda/CEPC_SMUON/SR_MIDDELTAM
+LineColor=red
+LineStyle=solid
+Path=//home/buding/Workshop/mRC-variables/Code/ww.yoda/CEPC_SMUON/SR_MIDDELTAM
+ScaledBy=9.99999999999735267e-02
+Title=ww
+# xlow	 xhigh	 val	 errminus	 errplus
+0.000000e+00	1.000000e+00	3.285773e+00	2.647751e-01	2.647751e-01
+1.000000e+00	2.000000e+00	0.000000e+00	0.000000e+00	0.000000e+00
+2.000000e+00	3.000000e+00	0.000000e+00	0.000000e+00	0.000000e+00
+3.000000e+00	4.000000e+00	0.000000e+00	0.000000e+00	0.000000e+00
+4.000000e+00	5.000000e+00	0.000000e+00	0.000000e+00	0.000000e+00
+5.000000e+00	6.000000e+00	0.000000e+00	0.000000e+00	0.000000e+00
+# END HISTO1D
+
