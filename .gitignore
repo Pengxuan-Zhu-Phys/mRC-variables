@@ -1,3 +1,4 @@
 *.yoda
 Code/rivet-plots/*
-BKG*
+Events/*
+
