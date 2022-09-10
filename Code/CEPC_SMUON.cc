@@ -10,7 +10,8 @@
 #include "Rivet/Projections/MissingMomentum.hh"
 #include "Rivet/Tools/Cutflow.hh"
 #include <tuple>
-
+#include <iostream>
+#include <fstream>
 
 namespace Rivet
 {
@@ -28,6 +29,10 @@ namespace Rivet
     void init()
     {
 
+      std::ofstream df;
+      df.open("reportDF.csv", std::ios::out | std::ios::app);
+      MSG_INFO("Open 'reportDF.csv' file");
+      df << "mVV,mRecoil,mRCmin,mRCmax,mLSPmax\n";
       // Initialise and register projections
 
       // The basic final-state projection:
@@ -215,6 +220,12 @@ namespace Rivet
           const double mRCmax = mrc[1];
           const double mLSPmax = mrc[2];
           const double DeltaM = mRCmax - mLSPmax;
+
+          // df << to_string(mll) << "," << mRecoil << "," << mRCmin << "," << mRCmax << "," << mLSPmax << '\n';
+          
+          df.open("reportDF.csv", std::ios::out | std::ios::app);
+          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," <<  mLSPmax << endl;
+          df.close();
 
           _CF_HighDM.fill(2);
           _CF_LowDM.fill(2);
@@ -451,6 +462,9 @@ namespace Rivet
       //          << _CF_LowDM);
 
       _CF_MidDM.scale(sf * Lint);
+      df.close();
+      MSG_INFO("Close 'reportDF.csv' file");
+
     }
 
     vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR) const
@@ -522,6 +536,8 @@ namespace Rivet
     ///@}
 
   private:
+    std::ofstream df;
+
     Cutflow _flow;
     Cutflows _Cutflows_em;
     Cutflows _Cutflows_mm;
