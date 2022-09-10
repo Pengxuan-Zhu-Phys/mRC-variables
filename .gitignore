@@ -1,4 +1,7 @@
 *.yoda
 Code/rivet-plots/*
+Code/*.yoda
 Events/*
+*.csv
+*.hepmc.gz
 
