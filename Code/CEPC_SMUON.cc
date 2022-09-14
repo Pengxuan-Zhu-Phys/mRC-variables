@@ -32,7 +32,7 @@ namespace Rivet
       std::ofstream df;
       df.open("reportDF.csv", std::ios::out | std::ios::app);
       MSG_INFO("Open 'reportDF.csv' file");
-      df << "mVV,mRecoil,mRCmin,mRCmax,mLSPmax\n";
+      df << "mVV,mRecoil,mRCmin,mRCmax,mRCLSP,mLSPmax\n";
       // Initialise and register projections
 
       // The basic final-state projection:
@@ -130,17 +130,19 @@ namespace Rivet
                                      "SR03 DeltaM < 30",
                                      "SR04 DeltaM < 40"});
 
-      book(_hist_Elm, "hist_ELm", 150, 0., 150.);
-      book(_hist_Elp, "hist_ELp", 150, 0., 150.);
+      book(_hist_Elm, "hist_ELm", 350, 0., 350.);
+      book(_hist_Elp, "hist_ELp", 350, 0., 350.);
       book(_hist_dRlmRec, "hist_dR_lm_Recoil", 100, 0., 20.);
       book(_hist_dRlpRec, "hist_dR_lp_Recoil", 100, 0., 20.);
-      book(_hist_mll, "hist_mll", 250, 0., 250.);
-      book(_hist_mRecoil, "hist_mRecoil", 250, 0., 250.);
+      book(_hist_mll, "hist_mll", 350, 0., 350.);
+      book(_hist_mRecoil, "hist_mRecoil", 350, 0., 350.);
 
-      book(_hist_mRCmin, "hist_mRCmin", 150, 0., 150.);
-      book(_hist_mRCmax, "hist_mRCmax", 150, 0., 150.);
-      book(_hist_mLSPmax, "hist_mLSPmax", 150, 0., 150.);
-      book(_hist_mRCdM, "hist_mRCdM", 150, 0., 150.);
+      book(_hist_mRCmin, "hist_mRCmin", 175, 0., 175.);
+      book(_hist_mRCmax, "hist_mRCmax", 175, 0., 175.);
+      book(_hist_mRCLSP, "hist_mRCLSP", 175, 0., 175.);
+      book(_hist_mLSPmax, "hist_mLSPmax", 175, 0., 175.);
+      book(_hist_mDM_RC, "hist_dM_RC", 175, 0., 175.);
+      book(_hist_mDM_LSP, "hist_dM_LSP", 175, 0., 175.);
     }
 
     /// Perform the per-event analysis
@@ -219,12 +221,14 @@ namespace Rivet
           const double mRCmin = mrc[0];
           const double mRCmax = mrc[1];
           const double mLSPmax = mrc[2];
-          const double DeltaM = mRCmax - mLSPmax;
+          const double mRCLSP = mrc[3];
+          const double dm_RC = mRCmax - mLSPmax;
+          const double dm_LSP = mRCLSP - mLSPmax;
 
           // df << to_string(mll) << "," << mRecoil << "," << mRCmin << "," << mRCmax << "," << mLSPmax << '\n';
           
           df.open("reportDF.csv", std::ios::out | std::ios::app);
-          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," <<  mLSPmax << endl;
+          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," << mRCLSP << "," <<  mLSPmax << endl;
           df.close();
 
           _CF_HighDM.fill(2);
@@ -234,7 +238,9 @@ namespace Rivet
           _hist_mRCmin->fill(mRCmin);
           _hist_mRCmax->fill(mRCmax);
           _hist_mLSPmax->fill(mLSPmax);
-          _hist_mRCdM->fill(DeltaM);
+          _hist_mRCLSP->fill(mRCLSP);
+          _hist_mDM_RC->fill(dm_RC);
+          _hist_mDM_LSP->fill(dm_LSP);
           _hist_mll->fill(mll);
           _hist_Elm->fill(EmuonM);
           _hist_Elp->fill(EmuonP);
@@ -242,192 +248,6 @@ namespace Rivet
           _hist_dRlmRec->fill(dRlmRec);
           _hist_mRecoil->fill(mRecoil);
 
-          // if (mRCmax > 110. * GeV)
-          if (false)
-          {
-
-            _CF_HighDM.fill(3);
-            _CF_LowDM.fill(3);
-            _CF_MidDM.fill(3);
-
-            // Define the SRs for High delta M, i.e. mLSP ~ 0 GeV
-            if (EmuonM > 45. * GeV && EmuonP > 45. * GeV && EmuonM < 75. * GeV && EmuonP < 75. * GeV)
-            {
-
-              _CF_HighDM.fill(4);
-              if (mRCmin > 85. * GeV)
-              {
-
-                _CF_HighDM.fill(5);
-                if (dRlpRec > 2.0 && dRlmRec > 2.0)
-                {
-
-                  _CF_HighDM.fill(6);
-                  if (mll < 120. * GeV)
-                  {
-
-                    _CF_HighDM.fill(7);
-                    _SR_highDELTAM->fill(1.5);
-                    if (mll < 60. * GeV)
-                    {
-                      _SR_highDELTAM->fill(2.5);
-                      _CF_HighDM.fill(8);
-                    }
-                    if (mRCmin > 95. * GeV)
-                    {
-                      _SR_highDELTAM->fill(3.5);
-                      _CF_HighDM.fill(9);
-                    }
-                  }
-                }
-              }
-            }
-            // Define the SRs for Low delta M, i.e. mY - mLSP ~ 0 GeV
-            if (DeltaM < 40. * GeV)
-            {
-
-              _CF_LowDM.fill(4);
-              if (DeltaM < 10. * GeV)
-              {
-                _CF_LowDM.fill(5);
-                _SR_lowDELTAM->fill(1.5);
-              }
-              if (DeltaM < 20. * GeV)
-              {
-                _CF_LowDM.fill(6);
-                _SR_lowDELTAM->fill(2.5);
-              }
-              if (DeltaM < 30. * GeV && EmuonM < 30. * GeV && EmuonM > 20. * GeV && EmuonP < 30. * GeV && EmuonP > 20. * GeV)
-              {
-                _CF_LowDM.fill(7);
-                _SR_lowDELTAM->fill(3.5);
-              }
-              if (DeltaM < 40. * GeV && EmuonM < 40. * GeV && EmuonM > 25. * GeV && EmuonP < 40. * GeV && EmuonP > 25. * GeV)
-              {
-                _CF_LowDM.fill(8);
-                _SR_lowDELTAM->fill(4.5);
-              }
-            }
-
-            // Define the SRs for Mid delta M, i.e. mY - mLSP ~ 1/3 mY -> 2/3 mY
-            if (DeltaM < 80. * GeV && DeltaM > 20. * GeV)
-            {
-
-              _CF_MidDM.fill(4);
-              // Define the SR for Mid delta M: mY - mLSP = 1/3 mY -> 5/12 mY
-              if (DeltaM < 80. * GeV && DeltaM > 40. * GeV)
-              {
-
-                _CF_MidDM.fill(5);
-                if (EmuonM > 40. * GeV && EmuonP > 40. * GeV && EmuonM < 60. * GeV && EmuonP < 60. * GeV)
-                {
-                  _CF_MidDM.fill(6);
-                  if (mll < 80. * GeV)
-                  {
-                    _CF_MidDM.fill(7);
-                    if (dRlpRec > 2.5 && dRlmRec > 2.5)
-                    {
-                      _CF_MidDM.fill(8);
-
-                      if (mRCmin > 85. * GeV)
-                      {
-
-                        _CF_MidDM.fill(9);
-                        _SR_midDELTAM->fill(1.5);
-                      }
-                    }
-                  }
-                }
-              }
-              // Define the SR for Mid delta M: mY-mLSP = 5/12 mY -> 1/2 mY
-              if (DeltaM < 70. * GeV && DeltaM > 35. * GeV)
-              {
-
-                _CF_MidDM.fill(10);
-                if (EmuonM > 30. * GeV && EmuonM < 55. * GeV && EmuonP > 30. * GeV && EmuonP < 55. * GeV)
-                {
-                  _CF_MidDM.fill(11);
-                  if (mRecoil < 140. * GeV)
-                  {
-
-                    _CF_MidDM.fill(12);
-                    if (mRCmin > 85 * GeV)
-                    {
-
-                      _CF_MidDM.fill(13);
-                      _SR_midDELTAM->fill(2.5);
-                    }
-                  }
-                }
-              }
-
-              // Define the SR for Mid delta M: mY - mLSP = 1/2 mY -> 7/12 mY
-              if (DeltaM < 60. * GeV && DeltaM > 30. * GeV)
-              {
-                _CF_MidDM.fill(14);
-                if (EmuonM > 35. * GeV && EmuonM < 50. * GeV && EmuonP > 35. * GeV && EmuonP < 50. * GeV)
-                {
-                  _CF_MidDM.fill(15);
-                  if (dRlmRec > 2.5 && dRlpRec > 2.5)
-                  {
-                    _CF_MidDM.fill(16);
-                    if (mRCmin > 60. * GeV)
-                    {
-                      _CF_MidDM.fill(17);
-                      if (mll < 50. * GeV)
-                      {
-                        _CF_MidDM.fill(18);
-                        _SR_midDELTAM->fill(3.5);
-                      }
-                    }
-                  }
-                }
-              }
-
-              // Define the SR for Mid delta M: mY - mLSP = 7/12 mY -> 2/3 mY
-              if (DeltaM < 50. * GeV && DeltaM > 25. * GeV)
-              {
-                _CF_MidDM.fill(19);
-                if (EmuonM > 35. * GeV && EmuonM < 45. * GeV && EmuonP > 35. * GeV && EmuonP < 45. * GeV)
-                {
-                  _CF_MidDM.fill(20);
-                  if (mRCmin > 60. * GeV)
-                  {
-                    _CF_MidDM.fill(21);
-                    _SR_midDELTAM->fill(4.5);
-                  }
-                }
-              }
-
-              // Define the SR for Mid delta M: mY - mLSP = 2/3 mY -> 3/4 mY
-              if (DeltaM < 40. * GeV && DeltaM > 20. * GeV)
-              {
-                _CF_MidDM.fill(22);
-                if (EmuonM < 40. * GeV && EmuonP < 40. * GeV)
-                {
-                  _CF_MidDM.fill(23);
-                  _SR_midDELTAM->fill(5.5);
-                }
-              }
-            }
-          }
-        }
-
-        // Define the SRs
-        if (dRlmRec < 2.9 && dRlpRec < 2.9 && EmuonM > 40 * GeV && EmuonP > 40 * GeV && mll < 60 * GeV && mRecoil > 40 * GeV)
-        {
-          _SR_highDELTAM->fill(0.5);
-          _Cutflows.fill(2);
-        }
-        if (dRlmRec > 1.5 && dRlmRec < 2.8 && dRlpRec > 1.5 && dRlpRec < 2.8 && EmuonM > 9 * GeV && EmuonM < 48 * GeV && EmuonP > 9 * GeV && EmuonP < 48 * GeV && mll < 80 * GeV)
-        {
-          _SR_midDELTAM->fill(0.5);
-          _Cutflows.fill(3);
-        }
-        if (dRlmRec > 1.5 && dRlmRec < 2.8 && dRlpRec > 1.5 && dRlpRec < 2.8 && mRecoil > 220 * GeV)
-        {
-          _SR_lowDELTAM->fill(0.5);
-          _Cutflows.fill(4);
         }
       }
       else
@@ -498,21 +318,23 @@ namespace Rivet
         const vector<double> pos_C = solveXY(EI1, EI2, pMiss);
         const vector<double> pos_B = solveXY(pL1, pL2, pMiss);
 
-        const double pMax2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
+        const double pMax2  = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
         const double pMinX2 = pow(pos_B[0] - pos_C[0], 2);
         const double pMinY2 = pos_B[1] > pos_C[1] ? pow(pos_B[1] - pos_C[1], 2) : 0.0;
+        const double pLSP2  = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1], 2);
 
         const double mYmax = sqrt(ss * ss - pMinX2 - pMinY2);
         const double mYmin = sqrt(ss * ss - pMax2);
         const double mImax = sqrt(EI1 * EI1 - pos_C[0] * pos_C[0]);
+        const double mYLSP = sqrt(ss * ss - pLSP2);
 
         // return mYmin;
-        const vector<double> mrc = {mYmin, mYmax, mImax};
+        const vector<double> mrc = {mYmin, mYmax, mImax, mYLSP};
         return mrc;
       }
       else
       {
-        const vector<double> mYmax = {-1.0, -1.0, -1.0};
+        const vector<double> mYmax = {-1.0, -1.0, -1.0, -1.0};
         // const double mYmax = -1.0;
         // MSG_INFO("Something wrong in Reconstructed Mass variables, " << bmet << bl1 << bl2 << pCM);
         return mYmax;
@@ -556,7 +378,9 @@ namespace Rivet
     Histo1DPtr _hist_mRCmin;
     Histo1DPtr _hist_mRCmax;
     Histo1DPtr _hist_mLSPmax;
-    Histo1DPtr _hist_mRCdM;
+    Histo1DPtr _hist_mRCLSP;
+    Histo1DPtr _hist_mDM_RC;
+    Histo1DPtr _hist_mDM_LSP;
 
     ///@}
     Cutflows _Cutflows;
