@@ -1,5 +1,5 @@
 *.yoda
-Code/rivet-plots/*
+Code/rivet-plots/
 Code/*.yoda
 Events/*
 *.csv
