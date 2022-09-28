@@ -32,7 +32,7 @@ namespace Rivet
       std::ofstream df;
       df.open("reportDF.csv", std::ios::out | std::ios::app);
       MSG_INFO("Open 'reportDF.csv' file");
-      df << "mVV,mRecoil,mRCmin,mRCmax,mRCLSP,mLSPmax\n";
+      df << "mVV,mRecoil,mRCmin,mRCmax,mRCLSP,mLSPmax,mRCmin(40),mRCmax(40),mRCmin(80),mRCmax(80),mRCmin(110),mRCmax(110)\n";
       // Initialise and register projections
 
       // The basic final-state projection:
@@ -225,10 +225,21 @@ namespace Rivet
           const double dm_RC = mRCmax - mLSPmax;
           const double dm_LSP = mRCLSP - mLSPmax;
 
+          vector<double> mrc40 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 40.);
+          const double mRCmin40 = mrc40[0];
+          const double mRCmax40 = mrc40[1];
+
+          vector<double> mrc80 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 80.);
+          const double mRCmin80 = mrc80[0];
+          const double mRCmax80 = mrc80[1];
+
+          vector<double> mrc110 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 110.);
+          const double mRCmin110 = mrc110[0];
+          const double mRCmax110 = mrc110[1];
           // df << to_string(mll) << "," << mRecoil << "," << mRCmin << "," << mRCmax << "," << mLSPmax << '\n';
           
           df.open("reportDF.csv", std::ios::out | std::ios::app);
-          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," << mRCLSP << "," <<  mLSPmax << endl;
+          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," << mRCLSP << "," <<  mLSPmax << "," <<  mRCmin40<< "," << mRCmax40 << "," <<  mRCmin80<< "," << mRCmax80 << "," <<  mRCmin110<< "," << mRCmax110  << endl;
           df.close();
 
           _CF_HighDM.fill(2);
@@ -287,7 +298,7 @@ namespace Rivet
 
     }
 
-    vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR) const
+    vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR, const double &mI = 0.0) const
     {
       // MSG_INFO("Tag 1");
       FourMomentum CM = met + l1 + l2;
@@ -313,9 +324,12 @@ namespace Rivet
       const double EI1 = ss - EL1;
       const double EI2 = ss - EL2;
 
-      if (EI1 > 0. && EI2 > 0. && EI1 + EI2 > pMiss && pL1 + pL2 > pMiss)
+      const double pI1max = sqrt(EI1 * EI1 - mI * mI);
+      const double pI2max = sqrt(EI2 * EI2 - mI * mI);
+
+      if (pI1max > 0. && pI2max > 0. && pI1max + pI2max > pMiss && pL1 + pL2 > pMiss)
       {
-        const vector<double> pos_C = solveXY(EI1, EI2, pMiss);
+        const vector<double> pos_C = solveXY(pI1max, pI2max, pMiss);
         const vector<double> pos_B = solveXY(pL1, pL2, pMiss);
 
         const double pMax2  = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
