@@ -270,7 +270,7 @@ namespace Rivet
     {
 
       const double sf = crossSection() / (numEvents() * femtobarn);
-      const double Lint = 5.e3;
+      const double Lint = 5.05e3;
       double norm = sf * Lint;
 
       MSG_INFO("Norm is " << norm);
