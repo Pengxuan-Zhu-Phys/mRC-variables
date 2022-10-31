@@ -63,6 +63,14 @@ RatioPlot=0
 # + any additional plot settings you might like, see make-plots documentation
 END PLOT
 
+BEGIN PLOT /CEPC_SMUON/hist_mMiss
+XLabel=$m_{\rm Recoil}$ [GeV]
+LogY=0
+YLabel=Events / 5 GeV
+RatioPlot=0
+# + any additional plot settings you might like, see make-plots documentation
+END PLOT
+
 BEGIN PLOT /CEPC_SMUON/hist_ELm
 XLabel=$E_{\ell^-}$ [GeV]
 LogY=0
@@ -73,6 +81,14 @@ END PLOT
 
 BEGIN PLOT /CEPC_SMUON/hist_dR_lm_Recoil
 XLabel=${\rm d}R(\ell^-, {\rm Recoil})$
+LogY=0
+YLabel=Events / 5 GeV
+RatioPlot=0
+# + any additional plot settings you might like, see make-plots documentation
+END PLOT
+
+BEGIN PLOT /CEPC_SMUON/hist_dR_ll
+XLabel=${\rm d}R(\ell^-, \ell^+)$
 LogY=0
 YLabel=Events / 5 GeV
 RatioPlot=0

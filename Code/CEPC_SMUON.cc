@@ -30,9 +30,12 @@ namespace Rivet
     {
 
       std::ofstream df;
-      df.open("reportDF.csv", std::ios::out | std::ios::app);
-      MSG_INFO("Open 'reportDF.csv' file");
-      df << "mVV,mRecoil,mRCmin,mRCmax,mRCLSP,mLSPmax,mRCmin(40),mRCmax(40),mRCmin(80),mRCmax(80),mRCmin(110),mRCmax(110)\n";
+      // dfname = getOption("DFNAME");
+      // dfname.append(".csv");
+
+      // df.open(dfname, std::ios::out | std::ios::app);
+      // MSG_INFO("Open file: " << dfname );
+      // df << "Nmuon,Emiss,Njet,mVV,mRecoil,mMiss,mRCmin,mRCmax,mRCLSP,mLSPmax\n";
       // Initialise and register projections
 
       // The basic final-state projection:
@@ -66,10 +69,10 @@ namespace Rivet
       // DressedLeptons muon_drs(photons, bare_muon, 0.1, lepton_cuts);
       DressedLeptons elec_drs(photons, bare_elec, 0.1, lepton_cuts);
       DressedLeptons muon_drs(photons, bare_muon, 0.1, lepton_cuts);
-      // declare(muon_drs, "muons");
-      // declare(elec_drs, "elecs");
-      declare(bare_elec, "elecs");
-      declare(bare_muon, "muons");
+      declare(muon_drs, "muons");
+      declare(elec_drs, "elecs");
+      // declare(bare_elec, "elecs");
+      // declare(bare_muon, "muons");
 
       // Missing momentum
       declare(MissingMomentum(fs), "MET");
@@ -79,7 +82,7 @@ namespace Rivet
       // take binning from reference data using HEPData ID (digits in "d01-x01-y01" etc.)
       book(_SR_lowDELTAM, "SR_LOWDELTAM", 5, 0, 5);
       book(_SR_midDELTAM, "SR_MIDDELTAM", 6, 0, 6);
-      book(_SR_highDELTAM, "SR_HIGHDELTAM", 4, 0, 4);
+      book(_SR_highDELTAM, "SR_HIGHDELTAM", 2, 0, 2);
 
       // Book Cut-flows
       const strings cfnames = {
@@ -92,57 +95,38 @@ namespace Rivet
       _CF_HighDM.addCutflow("HighDM", {"No Cuts",
                                        "Basic Cuts",
                                        "mRCmax > 110",
-                                       "Emuon in [45, 75]",
-                                       "mRCmin > 80",
-                                       "dR(mu, Recoil) > 2.0",
-                                       "mll < 120",
-                                       "Off_Shell Cuts mll < 60",
-                                       "Off_Shell Cuts mRCmin > 95"});
+                                       "mRCmin > 85",
+                                       "High Mass:  mRCmax > 117",
+                                       "High Mass:  mRCmin > 95",
+                                       "High Mass:  Emuon < 70."});
       _CF_MidDM.addCutflow("MidDM", {"No Cuts",
                                      "Basic Cuts",
                                      "mRCmax > 110",
-                                     "DeltaM in [20, 80]",
-                                     "SR01 DeltaM in [40, 80]",
-                                     "SR01 Emu in [40, 60]",
-                                     "SR01 mll < 80",
-                                     "SR01 dR(mu, Recoil) > 2.5",
-                                     "SR01 mRCmin > 85",
-                                     "SR02 DeltaM in [35, 70]",
-                                     "SR02 Emu in [30, 55]",
-                                     "SR02 mRecoil < 140",
-                                     "SR02 mRCmin > 85",
-                                     "SR03 DeltaM in [30, 60]",
-                                     "SR03 Emu in [35, 50]",
-                                     "SR03 dR(mu, Recoil) > 2.5",
-                                     "SR03 mRCmin > 60",
-                                     "SR03 mll < 50",
-                                     "SR04 DeltaM in [25, 50]",
-                                     "SR04 Emu in [35, 45]",
-                                     "SR04 mRCmin > 60",
-                                     "SR05 DeltaM in [20, 40]",
-                                     "SR05 Emu < 40."});
+                                     "mLSPmax > 40"});
       _CF_LowDM.addCutflow("LowDM", {"No Cuts",
                                      "Basic Cuts",
                                      "mRCmax > 110",
-                                     "DeltaM < 40",
-                                     "SR01 DeltaM < 10",
-                                     "SR02 DeltaM < 20",
-                                     "SR03 DeltaM < 30",
-                                     "SR04 DeltaM < 40"});
+                                     "DeltaM in [35, 50]",
+                                     "DeltaM in [25, 40]",
+                                     "DeltaM in [15, 30]",
+                                     "DeltaM < 20",
+                                     "DeltaM < 10"});
 
-      book(_hist_Elm, "hist_ELm", 350, 0., 350.);
-      book(_hist_Elp, "hist_ELp", 350, 0., 350.);
-      book(_hist_dRlmRec, "hist_dR_lm_Recoil", 100, 0., 20.);
-      book(_hist_dRlpRec, "hist_dR_lp_Recoil", 100, 0., 20.);
-      book(_hist_mll, "hist_mll", 350, 0., 350.);
-      book(_hist_mRecoil, "hist_mRecoil", 350, 0., 350.);
+      book(_hist_Elm, "hist_ELm", 250, 0., 125.);
+      book(_hist_Elp, "hist_ELp", 250, 0., 125.);
+      book(_hist_dRlmRec, "hist_dR_lm_Recoil", 100, 0., 5.);
+      book(_hist_dRlpRec, "hist_dR_lp_Recoil", 100, 0., 5.);
+      book(_hist_dRll, "hist_dR_ll", 100, 0., 5.);
+      book(_hist_mll, "hist_mll", 250, 0., 125.);
+      book(_hist_mRecoil, "hist_mRecoil", 250, 0., 250.);
+      book(_hist_mMiss, "hist_mMiss", 250, 0., 250.);
 
-      book(_hist_mRCmin, "hist_mRCmin", 175, 0., 175.);
-      book(_hist_mRCmax, "hist_mRCmax", 175, 0., 175.);
-      book(_hist_mRCLSP, "hist_mRCLSP", 175, 0., 175.);
-      book(_hist_mLSPmax, "hist_mLSPmax", 175, 0., 175.);
-      book(_hist_mDM_RC, "hist_dM_RC", 175, 0., 175.);
-      book(_hist_mDM_LSP, "hist_dM_LSP", 175, 0., 175.);
+      book(_hist_mRCmin, "hist_mRCmin", 250, 0., 125.);
+      book(_hist_mRCmax, "hist_mRCmax", 250, 0., 125.);
+      book(_hist_mRCLSP, "hist_mRCLSP", 250, 0., 125.);
+      book(_hist_mLSPmax, "hist_mLSPmax", 250, 0., 125.);
+      book(_hist_mDM_RC, "hist_dM_RC", 250, 0., 125.);
+      book(_hist_mDM_LSP, "hist_dM_LSP", 250, 0., 125.);
     }
 
     /// Perform the per-event analysis
@@ -181,21 +165,23 @@ namespace Rivet
       const int njet = jets.size();
 
       const ParticlePair &beams = apply<Beam>(event, "Beams").beams();
-      const double eC = beams.first.E();
+      const double eC1 = beams.first.E();
+      const double eC2 = beams.second.E();
       const Vector3 axis = (beams.first.charge() > 0) ? beams.first.momentum().p3().unit() : beams.second.momentum().p3().unit();
 
       FourMomentum P_Sum;
-      P_Sum.setE(2 * eC);
+      P_Sum.setE(eC1 + eC2);
       P_Sum.setPx(0.);
       P_Sum.setPy(0.);
       P_Sum.setPz(0.);
 
-      pTmiss.setE(2 * eC + pTmiss.E());
+      pTmiss.setE(eC1 + eC2 + pTmiss.E());
+      const double Emiss = pTmiss.E();
 
       bool smuonPre = false;
       if (nmuon == 2 && njet == 0)
       {
-        if (muonFS[0].charge() * muonFS[1].charge() < 0)
+        if (muonFS[0].charge() * muonFS[1].charge() < 0 && Emiss > 1. * GeV)
         {
           smuonPre = true;
         }
@@ -204,6 +190,7 @@ namespace Rivet
       if (smuonPre)
       {
         FourMomentum P_ISR = P_Sum - pTmiss - muonFS[0].momentum() - muonFS[1].momentum();
+        FourMomentum P_recoil = P_Sum - muonFS[0].momentum() - muonFS[1].momentum();
 
         const double EmuonM = (muonFS[1].charge() > 0) ? muonFS[0].E() : muonFS[1].E();
         const double EmuonP = (muonFS[1].charge() > 0) ? muonFS[1].E() : muonFS[0].E();
@@ -211,11 +198,14 @@ namespace Rivet
         const double dRlmRec = (muonFS[1].charge() > 0) ? deltaR(muonFS[0].mom(), pTmiss) : deltaR(muonFS[1].mom(), pTmiss);
         const double dRlpRec = (muonFS[1].charge() > 0) ? deltaR(muonFS[1].mom(), pTmiss) : deltaR(muonFS[0].mom(), pTmiss);
 
-        const double mll = (muonFS[0].momentum() + muonFS[1].momentum()).mass();
-        const double mRecoil = pTmiss.mass();
+        const double dRll = deltaR(muonFS[0].mom(), muonFS[1].mom());
 
-        // if (mRecoil > 1.0 && (mll < 85 || mll > 95) && (mRecoil < 85 || mRecoil > 95))
-        if (mRecoil > 1.0)
+        const double mll = (muonFS[0].momentum() + muonFS[1].momentum()).mass();
+        const double mRecoil = P_recoil.mass();
+        const double mMiss = pTmiss.mass();
+
+        if (mRecoil > 1.0 && (mll < 80 || mll > 100) && (mRecoil < 85 || mRecoil > 95))
+        // if (mRecoil > 1.0)
         {
           vector<double> mrc = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR);
           const double mRCmin = mrc[0];
@@ -225,40 +215,81 @@ namespace Rivet
           const double dm_RC = mRCmax - mLSPmax;
           const double dm_LSP = mRCLSP - mLSPmax;
 
-          vector<double> mrc40 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 40.);
-          const double mRCmin40 = mrc40[0];
-          const double mRCmax40 = mrc40[1];
-
-          vector<double> mrc80 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 80.);
-          const double mRCmin80 = mrc80[0];
-          const double mRCmax80 = mrc80[1];
-
-          vector<double> mrc110 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 110.);
-          const double mRCmin110 = mrc110[0];
-          const double mRCmax110 = mrc110[1];
-          // df << to_string(mll) << "," << mRecoil << "," << mRCmin << "," << mRCmax << "," << mLSPmax << '\n';
-          
-          df.open("reportDF.csv", std::ios::out | std::ios::app);
-          df << mll << "," << mRecoil << "," <<  mRCmin<< "," << mRCmax << "," << mRCLSP << "," <<  mLSPmax << "," <<  mRCmin40<< "," << mRCmax40 << "," <<  mRCmin80<< "," << mRCmax80 << "," <<  mRCmin110<< "," << mRCmax110  << endl;
-          df.close();
-
           _CF_HighDM.fill(2);
           _CF_LowDM.fill(2);
           _CF_MidDM.fill(2);
+          if (mRCmax > 110)
+          {
+            _CF_HighDM.fill(3);
+            _CF_LowDM.fill(3);
+            _CF_MidDM.fill(3);
+            // Define SR-HighDeltaM For DeltaM in [80, 120]
+            if (mRCmin > 85)
+            {
+              _CF_HighDM.fill(4);
+              _SR_highDELTAM->fill(0.5);
+            }
+            if (mRCmax > 117)
+            {
+              _CF_HighDM.fill(5);
+              if (mRCmin > 95)
+              {
+                _CF_HighDM.fill(6);
+                if (EmuonM < 70. && EmuonP < 70. && EmuonM > 50. && EmuonP > 50.)
+                {
+                  _SR_highDELTAM->fill(1.5);
+                  _CF_HighDM.fill(7);
+                }
+              }
+            }
+            // Define SR-LowDeltaM For DeltaM in [0, 50]
+            if (dm_RC < 50. && dm_RC > 35. && EmuonP < 44. && EmuonP > 34. && EmuonM < 44. && EmuonM > 34.)
+            {
+              _CF_LowDM.fill(4);
+              _SR_lowDELTAM->fill(0.5);
+            }
+            if (dm_RC < 40. && dm_RC > 25. && EmuonP < 38. && EmuonP > 28. && EmuonM < 38. && EmuonM > 28.)
+            {
+              _CF_LowDM.fill(5);
+              _SR_lowDELTAM->fill(1.5);
+            }
+            if (dm_RC < 30. && dm_RC > 15.)
+            {
+              _SR_lowDELTAM->fill(2.5);
+              _CF_LowDM.fill(6);
+            }
+            if (dm_RC < 20.)
+            {
+              _SR_lowDELTAM->fill(3.5);
+              _CF_LowDM.fill(7);
+            }
+            if (dm_RC < 10.)
+            {
+              _SR_lowDELTAM->fill(4.5);
+              _CF_LowDM.fill(8);
+            }
 
-          _hist_mRCmin->fill(mRCmin);
-          _hist_mRCmax->fill(mRCmax);
-          _hist_mLSPmax->fill(mLSPmax);
-          _hist_mRCLSP->fill(mRCLSP);
-          _hist_mDM_RC->fill(dm_RC);
-          _hist_mDM_LSP->fill(dm_LSP);
-          _hist_mll->fill(mll);
-          _hist_Elm->fill(EmuonM);
-          _hist_Elp->fill(EmuonP);
-          _hist_dRlpRec->fill(dRlpRec);
-          _hist_dRlmRec->fill(dRlmRec);
-          _hist_mRecoil->fill(mRecoil);
+            // Define SR-MedDELTAM For DeltaM in [40, 80]
+            if (mLSPmax > 40.)
+            {
 
+              _CF_MidDM.fill(4);
+              _hist_mRCmin->fill(mRCmin);
+              _hist_mRCmax->fill(mRCmax);
+              _hist_mLSPmax->fill(mLSPmax);
+              _hist_mRCLSP->fill(mRCLSP);
+              _hist_mDM_RC->fill(dm_RC);
+              _hist_mDM_LSP->fill(dm_LSP);
+              _hist_mll->fill(mll);
+              _hist_Elm->fill(EmuonM);
+              _hist_Elp->fill(EmuonP);
+              _hist_dRlpRec->fill(dRlpRec);
+              _hist_dRlmRec->fill(dRlmRec);
+              _hist_dRll->fill(dRll);
+              _hist_mRecoil->fill(mRecoil);
+              _hist_mMiss->fill(mMiss);
+            }
+          }
         }
       }
       else
@@ -269,7 +300,7 @@ namespace Rivet
     void finalize()
     {
 
-      const double sf = crossSection() / (numEvents() * femtobarn);
+      const double sf = crossSection() / femtobarn;
       const double Lint = 5.05e3;
       double norm = sf * Lint;
 
@@ -277,25 +308,40 @@ namespace Rivet
       MSG_INFO("Total Cross section is " << crossSection() / femtobarn << " femtobarn!");
       // normalize(_h["XXXX"]);                                 // normalize to unity
       // normalize(_h["YYYY"], crossSection() / picobarn);      // normalize to generated cross-section in pb (no cuts)
-      // scale(_h["ZZZZ"], crossSection() / picobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mRCmin, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mRCmax, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mLSPmax, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mRCLSP, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mDM_RC, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mDM_LSP, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mll, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      scale(_hist_Elm, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      scale(_hist_Elp, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      scale(_hist_dRlpRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_dRlmRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_dRll, crossSection() / femtobarn / sumW());    // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mRecoil, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      scale(_hist_mMiss, crossSection() / femtobarn / sumW());   // norm to generated cross-section in pb (after cuts)
 
+      scale(_SR_highDELTAM, sf * Lint / sumW());
 
-      _Cutflows.scale(sf * Lint);
+      _Cutflows.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS Smuon + ETmiss Case:\n\n"
       //          << _Cutflows);
 
-      _CF_HighDM.scale(sf * Lint);
+      _CF_HighDM.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS High DeltaM Case:\n\n"
-      //          << _CF_HighDM);
+      //  << _CF_HighDM);
 
-      _CF_LowDM.scale(sf * Lint);
+      _CF_LowDM.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
       //          << _CF_LowDM);
 
-      _CF_MidDM.scale(sf * Lint);
+      _CF_MidDM.scale(sf * Lint / numEvents());
+      MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
+               << _CF_MidDM);
       df.close();
-      MSG_INFO("Close 'reportDF.csv' file");
-
+      MSG_INFO("Close file" << dfname);
     }
 
     vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR, const double &mI = 0.0) const
@@ -327,15 +373,15 @@ namespace Rivet
       const double pI1max = sqrt(EI1 * EI1 - mI * mI);
       const double pI2max = sqrt(EI2 * EI2 - mI * mI);
 
-      if (pI1max > 0. && pI2max > 0. && pI1max + pI2max > pMiss && pL1 + pL2 > pMiss)
+      if (pI1max > 0. && pI2max > 0. && pI1max + pI2max > pMiss && pL1 + pL2 > pMiss && abs(pI1max - pI2max) < pMiss && abs(pL1 - pL2) < pMiss)
       {
         const vector<double> pos_C = solveXY(pI1max, pI2max, pMiss);
         const vector<double> pos_B = solveXY(pL1, pL2, pMiss);
 
-        const double pMax2  = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
+        const double pMax2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
         const double pMinX2 = pow(pos_B[0] - pos_C[0], 2);
         const double pMinY2 = pos_B[1] > pos_C[1] ? pow(pos_B[1] - pos_C[1], 2) : 0.0;
-        const double pLSP2  = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1], 2);
+        const double pLSP2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1], 2);
 
         const double mYmax = sqrt(ss * ss - pMinX2 - pMinY2);
         const double mYmin = sqrt(ss * ss - pMax2);
@@ -358,8 +404,8 @@ namespace Rivet
     vector<double> solveXY(const double &p1, const double &p2, const double &pMiss) const
     {
       const double x = 0.5 / pMiss * (pow(p1, 2) - pow(p2, 2) + pow(pMiss, 2));
-      const double numinator = 2.0 * (pow(p1, 2) * pow(p2, 2) + pow(p1, 2) * pow(pMiss, 2) + pow(p2, 2) * pow(pMiss, 2)) -pow(p1, 4) - pow(p2, 4) -pow(pMiss, 4);
-      const double y = 0.5 / pMiss * sqrt( numinator );
+      const double numinator = 2.0 * (pow(p1, 2) * pow(p2, 2) + pow(p1, 2) * pow(pMiss, 2) + pow(p2, 2) * pow(pMiss, 2)) - pow(p1, 4) - pow(p2, 4) - pow(pMiss, 4);
+      const double y = 0.5 / pMiss * sqrt(numinator);
       const vector<double> pos = {x, y};
       return pos;
     }
@@ -373,6 +419,7 @@ namespace Rivet
 
   private:
     std::ofstream df;
+    std::string dfname;
 
     Cutflow _flow;
     Cutflows _Cutflows_em;
@@ -381,13 +428,14 @@ namespace Rivet
 
     // CounterPtr _srcounts[4];
 
-
     Histo1DPtr _hist_Elm;
     Histo1DPtr _hist_Elp;
     Histo1DPtr _hist_dRlmRec;
     Histo1DPtr _hist_dRlpRec;
+    Histo1DPtr _hist_dRll;
     Histo1DPtr _hist_mll;
     Histo1DPtr _hist_mRecoil;
+    Histo1DPtr _hist_mMiss;
 
     Histo1DPtr _hist_mRCmin;
     Histo1DPtr _hist_mRCmax;
