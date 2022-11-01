@@ -81,7 +81,7 @@ namespace Rivet
       // specify custom binning
       // take binning from reference data using HEPData ID (digits in "d01-x01-y01" etc.)
       book(_SR_lowDELTAM, "SR_LOWDELTAM", 5, 0, 5);
-      book(_SR_midDELTAM, "SR_MIDDELTAM", 6, 0, 6);
+      book(_SR_midDELTAM, "SR_MIDDELTAM", 5, 0, 5);
       book(_SR_highDELTAM, "SR_HIGHDELTAM", 2, 0, 2);
 
       // Book Cut-flows
@@ -102,7 +102,17 @@ namespace Rivet
       _CF_MidDM.addCutflow("MidDM", {"No Cuts",
                                      "Basic Cuts",
                                      "mRCmax > 110",
-                                     "mLSPmax > 40"});
+                                     "SR01: mLSPmax in [40, 60]",
+                                     "SR01: mRCmin > 85 && mRCmax(40) > 110",
+                                     "SR02: mLSPmax in [50, 70]",
+                                     "SR02: mRCmax(40) > 110",
+                                     "SR02: mRCmin(40) > 100",
+                                     "SR03: mLSPmax in [60, 80]",
+                                     "SR03: mRCmin(40) > 95",
+                                     "SR04: mLSPmax in [70, 85]",
+                                     "SR04: mRCmin(70) > 100.",
+                                     "SR05: mLSPmax in [80, 95]",
+                                     "SR05: mRCmin(80) > 105"});
       _CF_LowDM.addCutflow("LowDM", {"No Cuts",
                                      "Basic Cuts",
                                      "mRCmax > 110",
@@ -218,6 +228,22 @@ namespace Rivet
           _CF_HighDM.fill(2);
           _CF_LowDM.fill(2);
           _CF_MidDM.fill(2);
+
+          _hist_mRCmin->fill(mRCmin);
+          _hist_mRCmax->fill(mRCmax);
+          _hist_mLSPmax->fill(mLSPmax);
+          _hist_mRCLSP->fill(mRCLSP);
+          _hist_mDM_RC->fill(dm_RC);
+          _hist_mDM_LSP->fill(dm_LSP);
+          _hist_mll->fill(mll);
+          _hist_Elm->fill(EmuonM);
+          _hist_Elp->fill(EmuonP);
+          _hist_dRlpRec->fill(dRlpRec);
+          _hist_dRlmRec->fill(dRlmRec);
+          _hist_dRll->fill(dRll);
+          _hist_mRecoil->fill(mRecoil);
+          _hist_mMiss->fill(mMiss);
+
           if (mRCmax > 110)
           {
             _CF_HighDM.fill(3);
@@ -270,24 +296,74 @@ namespace Rivet
             }
 
             // Define SR-MedDELTAM For DeltaM in [40, 80]
-            if (mLSPmax > 40.)
+            if (mLSPmax > 40. && mLSPmax < 60.)
             {
-
               _CF_MidDM.fill(4);
-              _hist_mRCmin->fill(mRCmin);
-              _hist_mRCmax->fill(mRCmax);
-              _hist_mLSPmax->fill(mLSPmax);
-              _hist_mRCLSP->fill(mRCLSP);
-              _hist_mDM_RC->fill(dm_RC);
-              _hist_mDM_LSP->fill(dm_LSP);
-              _hist_mll->fill(mll);
-              _hist_Elm->fill(EmuonM);
-              _hist_Elp->fill(EmuonP);
-              _hist_dRlpRec->fill(dRlpRec);
-              _hist_dRlmRec->fill(dRlmRec);
-              _hist_dRll->fill(dRll);
-              _hist_mRecoil->fill(mRecoil);
-              _hist_mMiss->fill(mMiss);
+              vector<double> mrc40 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 40.);
+              if (mrc40[1] > 110 && mRCmin > 85.)
+              {
+                _CF_MidDM.fill(5);
+                _SR_midDELTAM->fill(0.5);
+              }
+            }
+            if (mLSPmax > 50. && mLSPmax < 70.)
+            {
+              _CF_MidDM.fill(6);
+              vector<double> mrc40 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 40.);
+              if (mrc40[1] > 110.)
+              {
+                _CF_MidDM.fill(7);
+                if (mrc40[0] > 100.)
+                {
+                  _CF_MidDM.fill(8);
+                  _SR_midDELTAM->fill(1.5);
+                }
+              }
+            }
+            if (mLSPmax > 60. && mLSPmax < 80.)
+            {
+              _CF_MidDM.fill(9);
+              vector<double> mrc40 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 40.);
+              if (mrc40[0] > 95.)
+              {
+                _CF_MidDM.fill(10);
+                _SR_midDELTAM->fill(2.5);
+              }
+            }
+            if (mLSPmax > 70. && mLSPmax < 85.)
+            {
+              _CF_MidDM.fill(11);
+              vector<double> mrc70 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 70.);
+              if (mrc70[0] > 100.)
+              {
+                _CF_MidDM.fill(12);
+                _SR_midDELTAM->fill(3.5);
+              }
+            }
+            if (mLSPmax > 80. && mLSPmax < 95)
+            {
+              _CF_MidDM.fill(13);
+              vector<double> mrc80 = mRC(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR, 80.);
+              if (mrc80[0] > 105.)
+              {
+                _CF_MidDM.fill(14);
+                _SR_midDELTAM->fill(4.5);
+              }
+
+              // _hist_mRCmin->fill(mrc80[0]);
+              // _hist_mRCmax->fill(mrc80[1]);
+              // _hist_mLSPmax->fill(mrc80[2]);
+              // _hist_mRCLSP->fill(mrc80[3]);
+              // _hist_mDM_RC->fill(mrc80[1] - mrc80[2]);
+              // _hist_mDM_LSP->fill(mrc80[3] - mrc80[2]);
+              // _hist_mll->fill(mll);
+              // _hist_Elm->fill(EmuonM);
+              // _hist_Elp->fill(EmuonP);
+              // _hist_dRlpRec->fill(dRlpRec);
+              // _hist_dRlmRec->fill(dRlmRec);
+              // _hist_dRll->fill(dRll);
+              // _hist_mRecoil->fill(mRecoil);
+              // _hist_mMiss->fill(mMiss);
             }
           }
         }
