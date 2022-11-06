@@ -48,10 +48,10 @@ namespace Rivet
 
       Cut lepton_cuts = ((Cuts::abseta < 3.0) && (Cuts::E > 0.5 * GeV));
 
-      // FinalState bare_elec(Cuts::abspid == PID::ELECTRON);
-      // FinalState bare_muon(Cuts::abspid == PID::MUON);
-      PromptFinalState bare_elec(Cuts::abspid == PID::ELECTRON && lepton_cuts);
-      PromptFinalState bare_muon(Cuts::abspid == PID::MUON && lepton_cuts);
+      FinalState bare_elec(Cuts::abspid == PID::ELECTRON && lepton_cuts);
+      FinalState bare_muon(Cuts::abspid == PID::MUON && lepton_cuts);
+      // PromptFinalState bare_elec(Cuts::abspid == PID::ELECTRON && lepton_cuts);
+      // PromptFinalState bare_muon(Cuts::abspid == PID::MUON && lepton_cuts);
 
       // The final-state particles declared above are clustered using FastJet with
       // the anti-kT algorithm and a jet-radius parameter 0.4
@@ -80,9 +80,9 @@ namespace Rivet
       // Book histograms
       // specify custom binning
       // take binning from reference data using HEPData ID (digits in "d01-x01-y01" etc.)
-      book(_SR_lowDELTAM, "SR_LOWDELTAM", 5, 0, 5);
-      book(_SR_midDELTAM, "SR_MIDDELTAM", 5, 0, 5);
-      book(_SR_highDELTAM, "SR_HIGHDELTAM", 2, 0, 2);
+      book(_SR_lowDELTAM, "SR_LOWDELTAM", 6, 0, 6);
+      book(_SR_midDELTAM, "SR_MIDDELTAM", 6, 0, 6);
+      book(_SR_highDELTAM, "SR_HIGHDELTAM", 3, 0, 3);
 
       // Book Cut-flows
       const strings cfnames = {
@@ -127,7 +127,7 @@ namespace Rivet
       book(_hist_dRlmRec, "hist_dR_lm_Recoil", 100, 0., 5.);
       book(_hist_dRlpRec, "hist_dR_lp_Recoil", 100, 0., 5.);
       book(_hist_dRll, "hist_dR_ll", 100, 0., 5.);
-      book(_hist_mll, "hist_mll", 250, 0., 125.);
+      book(_hist_mll, "hist_mll", 250, 0., 250.);
       book(_hist_mRecoil, "hist_mRecoil", 250, 0., 250.);
       book(_hist_mMiss, "hist_mMiss", 250, 0., 250.);
 
@@ -213,6 +213,19 @@ namespace Rivet
         const double mll = (muonFS[0].momentum() + muonFS[1].momentum()).mass();
         const double mRecoil = P_recoil.mass();
         const double mMiss = pTmiss.mass();
+        
+        if (EmuonM > 40. && EmuonP > 40. && dRlmRec < 2.9 && dRlpRec < 2.9 && mll < 60. && mRecoil > 40.)
+        {
+          _SR_highDELTAM->fill(2.5);
+        }
+        if (EmuonM > 9. && EmuonP > 9. && EmuonM < 48. && EmuonP < 48. && dRlmRec < 2.8 && dRlpRec < 2.8 && dRlmRec > 1.5 && dRlpRec > 1.5 && mll < 80.)
+        {
+          _SR_midDELTAM->fill(5.5);
+        }
+        if (dRlmRec < 2.8 && dRlpRec < 2.8 && dRlmRec > 1.5 && dRlpRec > 1.5 && mRecoil > 220.)
+        {
+          _SR_lowDELTAM->fill(5.5);
+        }
 
         if (mRecoil > 1.0 && (mll < 80 || mll > 100) && (mRecoil < 85 || mRecoil > 95))
         // if (mRecoil > 1.0)
@@ -274,17 +287,17 @@ namespace Rivet
               _CF_LowDM.fill(4);
               _SR_lowDELTAM->fill(0.5);
             }
-            if (dm_RC < 40. && dm_RC > 25. && EmuonP < 38. && EmuonP > 28. && EmuonM < 38. && EmuonM > 28.)
+            if (dm_RC < 40. && dm_RC > 25. && EmuonP < 37. && EmuonP > 28. && EmuonM < 37. && EmuonM > 28.)
             {
               _CF_LowDM.fill(5);
               _SR_lowDELTAM->fill(1.5);
             }
-            if (dm_RC < 30. && dm_RC > 15.)
+            if (dm_RC < 30. && dm_RC > 15. && EmuonP < 28. && EmuonP > 22. && EmuonM < 28. && EmuonM > 22.)
             {
               _SR_lowDELTAM->fill(2.5);
               _CF_LowDM.fill(6);
             }
-            if (dm_RC < 20.)
+            if (dm_RC < 20. && EmuonP < 18. && EmuonP > 15. && EmuonM < 18. && EmuonM > 15.)
             {
               _SR_lowDELTAM->fill(3.5);
               _CF_LowDM.fill(7);
@@ -400,22 +413,24 @@ namespace Rivet
       scale(_hist_mMiss, crossSection() / femtobarn / sumW());   // norm to generated cross-section in pb (after cuts)
 
       scale(_SR_highDELTAM, sf * Lint / sumW());
+      scale(_SR_midDELTAM, sf * Lint / sumW());
+      scale(_SR_lowDELTAM, sf * Lint / sumW());
 
-      _Cutflows.scale(sf * Lint / numEvents());
+      // _Cutflows.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS Smuon + ETmiss Case:\n\n"
       //          << _Cutflows);
 
-      _CF_HighDM.scale(sf * Lint / numEvents());
+      // _CF_HighDM.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS High DeltaM Case:\n\n"
       //  << _CF_HighDM);
 
       _CF_LowDM.scale(sf * Lint / numEvents());
-      // MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
-      //          << _CF_LowDM);
+      MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
+               << _CF_LowDM);
 
       _CF_MidDM.scale(sf * Lint / numEvents());
-      MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
-               << _CF_MidDM);
+      // MSG_INFO("CUTFLOWS Low DeltaM Case:\n\n"
+      //          << _CF_MidDM);
       df.close();
       MSG_INFO("Close file" << dfname);
     }
