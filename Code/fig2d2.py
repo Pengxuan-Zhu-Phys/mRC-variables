@@ -48,10 +48,10 @@ ax  = fig.add_axes([0.198, 0.21, 0.657, 0.73])
 axc = fig.add_axes([0.86, 0.235, 0.02, 0.7])
 
 
-data = pd.read_csv(f"{pwd}/Data/WW_reportDF.csv")
-xsect = 194.167
-ax.text(0.02, 1.001, r"$W^+ W^-, W \to \mu \nu_{\mu}$", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
-nmc = 1.e6
+# data = pd.read_csv(f"{pwd}/Data/WW_reportDF.csv")
+# xsect = 194.167
+# ax.text(0.02, 1.001, r"$W^+ W^-, W \to \mu \nu_{\mu}$", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
+# nmc = 1.e6
 
 # data = pd.read_csv(f"{pwd}/Data/ZZ_reportDF.csv")
 # xsect = 15.6359
@@ -63,10 +63,10 @@ nmc = 1.e6
 # ax.text(0.02, 1.001, r"$(m_{\tilde{\mu}}, m_{\tilde{\chi}_1^0}) = (50, 0)~{\rm GeV}$", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
 # nmc = 1.e6
 
-# data = pd.read_csv(f"{pwd}/Data/Tau_reportDF.csv")
-# xsect = 1886.47 * 0.1739 * 0.1739
-# ax.text(0.02, 1.001, r"$\tau^+\tau^- \to \mu^-\mu^- \nu\nu\nu\nu $", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
-# nmc = 113317
+data = pd.read_csv(f"{pwd}/Data/Tau_reportDF.csv")
+xsect = 1886.47 * 0.1739 * 0.1739
+ax.text(0.02, 1.001, r"$\tau^+\tau^- \to \mu^+\mu^- \nu\nu\nu\nu $", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
+nmc = 113317
 
 # data = pd.read_csv(f"{pwd}/Data/smu100_chi0.csv")
 # ax.text(0.02, 1.001, r"$(m_{\tilde{\mu}}, m_{\tilde{\chi}_1^0}) = (100, 0)~{\rm GeV}$", fontsize=26, ha='left', va='bottom', transform=ax.transAxes)
@@ -183,9 +183,9 @@ axc.set_ylabel(r"Events $\left/ (1~{\rm GeV}\times 1~{\rm GeV})\right.$", fontsi
 
 
 # plt.show()
-plt.savefig("Figure/ww2d2.pdf")
+# plt.savefig("Figure/ww2d2.pdf")
 # plt.savefig("Figure/zz2d2.pdf")
 # plt.savefig("Figure/smuon2d2.pdf")
-# plt.savefig("Figure/tau2d2.pdf")
+plt.savefig("Figure/tau2d2.pdf")
 # plt.savefig("Figure/smuon100_0_2d2.pdf")
 # plt.savefig("Figure/smuon100_40_2d2.pdf")

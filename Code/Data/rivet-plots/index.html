@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>Plots from Rivet analyses</title>
+<style>
+      html { font-family: sans-serif; }
+      img { border: 0; }
+      a { text-decoration: none; font-weight: bold; }
+    </style>
+            <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: {inlineMath: [["$","$"]]}
+        });
+        </script>
+        <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
+        
+
+        <script type="text/javascript">
+            function filterPlots(ana, patt) {
+                var regex = new RegExp(patt);
+                var sec = document.getElementById('ana_'+ana);
+                var plots = sec.getElementsByClassName('plot');
+                var i; for (i = 0; i < plots.length; ++i) {
+                    // var viz = (regex.test(plots[i].id)) ? 'visible' : 'hidden';
+                    // plots[i].style.visibility = viz;
+                    var dis = (regex.test(plots[i].id)) ? 'block' : 'none';
+                    plots[i].style.display = dis;
+                }
+                return false;
+           }
+        </script>
+        </head>
+<body><h2>Plots from Rivet analyses</h2>
+
+
+<h3><a href="CEPC_SMUON/index.html" style="text-decoration:none;">CEPC_SMUON</a></h3>
+<p><a href="https://inspirehep.net/literature?q=MUON">Inspire</a> &#124; <a href="http://hepdata.cedar.ac.uk/view/irnMUON">HepData</a></p>
+<footer style="clear:both; margin-top:3em; padding-top:3em">
+<p>Generated at Wednesday, 09. November 2022 11:45PM</p>
+<p>Created with command: <pre>rivet-mkhtml --errs bkgww240.yoda</pre></p>
+</footer>
+
+</body>
+</html>

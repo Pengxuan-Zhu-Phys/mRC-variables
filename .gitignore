@@ -1,6 +1,6 @@
 *.yoda
 Code/rivet-plots/
-Code/Data/
+Code/Data/rivet-plots
 Code/Figure/
 Code/*.yoda
 Code/*.png
