@@ -200,5 +200,5 @@ ax.legend(handles, labs, framealpha=0, ncol=3, loc="best", fontsize='xx-small')
 # ax.legend()
 
 
-# plt.show()
-plt.savefig("Figure/SRs.pdf")
+plt.show()
+# plt.savefig("Figure/SRs.pdf")
