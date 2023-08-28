@@ -184,10 +184,10 @@ axy.set_ylabel(r"$m_{\rm Recoil}~[{\rm GeV}]$", fontsize=30, loc='top')
 axc.set_ylabel(r"Events $\left/ (1~{\rm GeV}\times 1~{\rm GeV})\right.$", fontsize=30, loc='top')
 
 
-# plt.show()
+plt.show()
 # plt.savefig("Figure/ww2d1.pdf")
 # plt.savefig("Figure/zz2d1.pdf")
 # plt.savefig("Figure/smuon2d1.pdf")
-plt.savefig("Figure/tau2d1.pdf")
+# plt.savefig("Figure/tau2d1.pdf")
 # plt.savefig("Figure/smuon100_0_2d1.pdf")
 # plt.savefig("Figure/smuon100_40_2d1.pdf")

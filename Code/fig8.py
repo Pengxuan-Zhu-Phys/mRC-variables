@@ -122,7 +122,7 @@ eventlabels={
 }
 ax.set_xticks(
     np.linspace(0.3, 11.3, 12),
-    labels=['SRH-01', "SRH-02", "SRM-01", "SRM-02", "SRM-03", "SRM-04", "SRM-05", "SRL-01", "SRL-02", "SRL-03", "SRL-04", "SRL-05"],
+    labels=['SRL-01', "SRL-02", "SRM-01", "SRM-02", "SRM-03", "SRM-04", "SRM-05", "SRH-01", "SRH-02", "SRH-03", "SRH-04", "SRH-05"],
     rotation=26,
     ha='right',
     va='top'
@@ -200,5 +200,5 @@ ax.legend(handles, labs, framealpha=0, ncol=3, loc="best", fontsize='xx-small')
 # ax.legend()
 
 
-plt.show()
-# plt.savefig("Figure/SRs.pdf")
+# plt.show()
+plt.savefig("Figure/SRs.pdf")

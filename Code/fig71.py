@@ -52,17 +52,17 @@ ax = fig.add_axes([0.15, 0.16, 0.818, 0.8])
 # ax.set_xlabel(
 #     r"$m_{\rm RC}^{\rm max} - m_{\rm LSP}^{\rm max}~[{\rm GeV}]$", fontsize=48, loc='right')
 
-# mode = "mRCmax"
-# ax.set_xlabel(
-#     r"$m_{\rm RC}^{\rm max}~[{\rm GeV}]$", fontsize=48, loc='right')
+mode = "mRCmax"
+ax.set_xlabel(
+    r"$m_{\rm RC}^{\rm max}~[{\rm GeV}]$", fontsize=48, loc='right')
 
 # mode = "mRCmin"
 # ax.set_xlabel(
 #     r"$m_{\rm RC}^{\rm min}~[{\rm GeV}]$", fontsize=48, loc='right')
 
-mode = "mLSPmax"
-ax.set_xlabel(
-    r"$m_{\rm LSP}^{\rm max}~[{\rm GeV}]$", fontsize=48, loc='right')
+# mode = "mLSPmax"
+# ax.set_xlabel(
+#     r"$m_{\rm LSP}^{\rm max}~[{\rm GeV}]$", fontsize=48, loc='right')
 
 bkgname = ['Zh', 'Wmuv', 'ZZ', 'mumuvv', 'Zll', 'TauTau', 'WW']
 eventlabels={
@@ -87,15 +87,16 @@ for ii in range(len(mchi10)):
         linewidth=6,
         solid_joinstyle="miter"
     )
+
 for ii in range(len(mchi10)):
     chi = mchi10[ii]
     sgn = pd.read_csv(f"Data/Draw/{mode}/115_{chi}.csv")
     xx = np.array([sgn['xlow'], sgn['xhigh']]).ravel(order='F')
     yy = np.array([sgn['val'], sgn['val']]).ravel(order='F')
     ax.plot(
-        xx, yy, '--',
+        xx, yy, linestyle=(0, (5, 1)),
         c=lincols[ii],
-        linewidth=4.5,
+        linewidth=4,
         solid_joinstyle="miter"
     )
 
@@ -143,11 +144,11 @@ ax.fill_between(
     alpha=0.3, label="SM", zorder=11
 )
 ax.plot(xx, np.array([yy0, yy0]).ravel(
-    order="F"), c='black', linewidth=2, label="SM", zorder=11)
+    order="F"), c='black', linewidth=0.8, label="SM", zorder=11)
 ax.set_xlim(0, 120)
-# ax.set_ylim(0, 1.e5)
+# ax.set_ylim(0, 5.e4)
 
-ax.set_ylim(0.7, 10**7)
+ax.set_ylim(20, 6.e5)
 ax.set_yscale("log")
 
 ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -160,13 +161,13 @@ ax.yaxis.set_major_formatter(CustomTicker())
 ax.tick_params(
     which='both',
     direction="in",
-    labelsize=28,
+    labelsize=32,
     left=True,
     right=True,
     bottom=True,
     top=True
 )
-ax.tick_params(which="major", length=14, width=1.2)
+ax.tick_params(which="major", length=14, width=2.0)
 ax.tick_params(which="minor", length=8, width=1.2)
 
 ax.set_ylabel(r"Events $\left/ 5~{\rm GeV}\right.$", fontsize=48, loc='top')
@@ -187,20 +188,20 @@ from matplotlib.lines import Line2D
 handles = []
 for cc in lincols:
     handles.append((
-        Line2D([0], [0], color="w", lw=6),
-        Line2D([0], [0], color=cc, linestyle='--', lw=4.5)
+        Line2D([0], [0], color="w", lw=3),
+        Line2D([0], [0], color=cc, linestyle=(0, (5, 1)), lw=2)
     ))
 
 hdl = [(
     Rectangle((0,0),1,1,facecolor=None,ec='black', hatch='///', fill=False),  
     Rectangle((0,0),1,1,color="gray",ec=None, alpha=0.3),  
-    Line2D([0], [0], color="black", lw=3)
+    Line2D([0], [0], color="black", lw=1)
     )]
 labs = [
-    r"$m_{\tilde{\mu}} = 115~{\rm GeV}, m_{\tilde{\chi}_1^0} = 0~{\rm GeV}$", 
-    r"$m_{\tilde{\mu}} = 115~{\rm GeV}, m_{\tilde{\chi}_1^0} = 40~{\rm GeV}$", 
-    r"$m_{\tilde{\mu}} = 115~{\rm GeV}, m_{\tilde{\chi}_1^0} = 80~{\rm GeV}$", 
-    r"$m_{\tilde{\mu}} = 115~{\rm GeV}, m_{\tilde{\chi}_1^0} = 110~{\rm GeV}$", 
+    r"$m_{\tilde{\chi}_1^0} = {\bf 0~GeV}$", 
+    r"$m_{\tilde{\chi}_1^0} = {\bf 40~GeV}$", 
+    r"$m_{\tilde{\chi}_1^0} = {\bf 80~GeV}$", 
+    r"$m_{\tilde{\chi}_1^0} = {\bf 110~GeV}$", 
     'SM Total'
     ]
 labs += list(eventlabels.values())
@@ -208,8 +209,8 @@ handles  += hdl
 
 # ax.legend(handler[::-1], label[::-1], loc='upper right', ncol=2, framealpha=0)
 handles += [Rectangle((0,0),1,1,color=c,ec=None) for c in colors]
-ax.legend(handles, labs, framealpha=0, ncol=3, loc="best", fontsize='small')
-# ax.legend(handles, labs, framealpha=0, ncol=2, loc="upper left", fontsize='medium')
+# ax.legend(handles, labs, framealpha=0, ncol=3, loc="best", fontsize='small')
+ax.legend(handles, labs, framealpha=0, ncol=3, loc="upper right", fontsize=18)
 
 
 # plt.legend([(ll1, ll2)], ['SM total'])

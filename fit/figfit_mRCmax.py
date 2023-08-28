@@ -27,7 +27,7 @@ config = {
     "text.latex.preamble": r"\usepackage{amsmath}"
 }
 rcParams.update(config)
-plt.rcParams['axes.formatter.min_exponent'] = 2
+plt.rcParams['axes.formatter.min_exponent'] = 3
 
 
 class CustomTicker(LogFormatterSciNotation):
@@ -48,8 +48,8 @@ cmap = LinearSegmentedColormap.from_list(cmap_name, collist, N=256)
 pwd = os.path.abspath(os.path.dirname(__file__))
 
 fig = plt.figure(figsize=(10, 10))
-ax = fig.add_axes([0.15, 0.45, 0.83, 0.53])
-axr = fig.add_axes([0.15, 0.15, 0.83, 0.3])
+ax = fig.add_axes([0.17, 0.45, 0.81, 0.53])
+axr = fig.add_axes([0.17, 0.15, 0.81, 0.3])
 
 
 base = 80390 
@@ -60,7 +60,7 @@ def draw(mW, c):
     dat_var = pd.read_csv("./Hist/{}_mRCmax.csv".format(mW))
 
     xx = cords(dat_var['xlow'], dat_var['xhigh'])
-    ax.plot(xx, cords(dat_var['val'], dat_var['val']), '-', solid_joinstyle='miter', c=c)
+    ax.plot(xx, cords(dat_var['val'], dat_var['val']), '-', lw=2, solid_joinstyle='miter', c=c)
     ax.fill_between(
         xx, 
         cords(dat_var['val'] - dat_var['errminus'], dat_var['val'] - dat_var['errminus']), 
@@ -71,7 +71,7 @@ def draw(mW, c):
         xx, 
         cords(dat_var['val'] /dat_base['val'], dat_var['val'] /dat_base['val']),
         solid_joinstyle='miter',
-        lw=2,
+        lw=3,
         color=c,
     )
     axr.plot(
@@ -104,14 +104,15 @@ draw(80350, 'blue')
 draw(80430, 'green')
 
 ax.set_xlim([dat_base['xlow'].min(), dat_base['xhigh'].max()])
-ax.set_ylim(0., 120000)
+ax.set_ylim(0., 105000)
 axr.set_xlim([dat_base['xlow'].min(), dat_base['xhigh'].max()])
 axr.set_ylim(0.95, 1.05)
 
-ax.set_xticks(np.linspace(76, 84, 5))
+# ax.set_xticks(np.linspace(76, 84, 5))
+ax.set_xticks([])
 axr.set_xticks(np.linspace(76, 84, 5))
 axr.set_yticks(np.linspace(0.96, 1.04, 5))
-ax.xaxis.set_minor_locator(FixedLocator(np.linspace(75, 85, 51)))
+# ax.xaxis.set_minor_locator(FixedLocator(np.linspace(75, 85, 51)))
 axr.xaxis.set_minor_locator(FixedLocator(np.linspace(75, 85, 51)))
 ax.yaxis.set_minor_locator(AutoMinorLocator())
 axr.yaxis.set_minor_locator(AutoMinorLocator())
@@ -120,6 +121,7 @@ axr.yaxis.set_minor_locator(AutoMinorLocator())
 ax.tick_params(
     which='both',
     direction="in",
+    labelsize=26,
     left=True,
     right=True,
     bottom=True,
@@ -130,6 +132,7 @@ ax.tick_params(which="minor", length=4, width=1.2)
 axr.tick_params(
     which='both',
     direction="in",
+    labelsize=26,
     left=True,
     right=True,
     bottom=True,
@@ -147,15 +150,15 @@ from matplotlib.lines import Line2D
 hdl = [
     (
         Rectangle((0, 0), 1, 1, facecolor="red", edgecolor=None, alpha=0.3),
-        Line2D([0], [0], color='red', lw=3) 
+        Line2D([0], [0], color='red', lw=4) 
     ),
     (
         Rectangle((0, 0), 1, 1, facecolor='blue', edgecolor=None, alpha=0.3),
-        Line2D([0], [0], color='blue', lw=3) 
+        Line2D([0], [0], color='blue', lw=4) 
     ),
     (
         Rectangle((0, 0), 1, 1, facecolor='green', edgecolor=None, alpha=0.3),
-        Line2D([0], [0], color='green', lw=3) 
+        Line2D([0], [0], color='green', lw=4) 
     )
 ]
 labs = [
@@ -163,8 +166,8 @@ labs = [
     r"$m_W = 80360~{\rm MeV}$",
     r"$m_W = 80420~{\rm MeV}$",
 ]
-ax.legend(hdl, labs, framealpha=0, loc='best')
+ax.legend(hdl, labs, framealpha=0, loc='best', fontsize=30)
 
 # plt.show()
-plt.savefig("mRCmax.pdf")
+plt.savefig("mRCmax_PRD.pdf")
 

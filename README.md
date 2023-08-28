@@ -4,7 +4,7 @@ A set of variables to solve the masses of particles in decay tree with invisible
 
 # Documentation
 
-Documentation can be found in [Inspire-HEP](https://inspirehep.net/literature/2182463) and in [arXiv](https://arxiv.org/abs/2211.08132). 
+Documentation can be found in [Inspire-HEP](https://inspirehep.net/literature/2182463) and in [arXiv: 2211.08132](https://arxiv.org/abs/2211.08132). 
 
 # Demos 
 ## Installation of Rivet 
