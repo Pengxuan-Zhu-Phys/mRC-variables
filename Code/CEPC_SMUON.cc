@@ -137,6 +137,9 @@ namespace Rivet
       book(_hist_mLSPmax, "hist_mLSPmax", 250, 0., 125.);
       book(_hist_mDM_RC, "hist_dM_RC", 250, 0., 125.);
       book(_hist_mDM_LSP, "hist_dM_LSP", 250, 0., 125.);
+
+      book(_hist_Wmin, "hist_Wmass_mRCmin", 4000, 78, 82);
+      book(_hist_Wmax, "hist_Wmass_mRCmax", 4000, 78, 82);
     }
 
     /// Perform the per-event analysis
@@ -170,6 +173,9 @@ namespace Rivet
       const Particles &muonFS = apply<FinalState>(event, "muons").particlesByPt();
       const int nmuon = muonFS.size();
 
+      const Particles &elecFS = apply<FinalState>(event, "elecs").particlesByPt();
+      const int nelec = elecFS.size();
+
       const FastJets &jetsAntiKt4 = apply<FastJets>(event, "jets");
       const Jets &jets = jetsAntiKt4.jetsByPt(10.0 * GeV);
       const int njet = jets.size();
@@ -189,13 +195,40 @@ namespace Rivet
       const double Emiss = pTmiss.E();
 
       bool smuonPre = false;
-      if (nmuon == 2 && njet == 0)
+      // if (nmuon == 2 && njet == 0)
+      // {
+      //   if (muonFS[0].charge() * muonFS[1].charge() < 0 && Emiss > 1. * GeV)
+      //   {
+      //     smuonPre = true;
+      //   }
+      // }
+      bool wmassPre = false;
+      if (nmuon == 1 && nelec == 1)
       {
-        if (muonFS[0].charge() * muonFS[1].charge() < 0 && Emiss > 1. * GeV)
+        if (muonFS[0].charge() * elecFS[0].charge() < 0)
         {
-          smuonPre = true;
+          wmassPre = true;
         }
       }
+
+      if (wmassPre)
+      {
+        FourMomentum P_ISR = P_Sum - pTmiss - muonFS[0].momentum() - muonFS[1].momentum();
+        FourMomentum P_recoil = P_Sum - muonFS[0].momentum() - muonFS[1].momentum();
+        const double mRecoil = P_recoil.mass();
+        if (mRecoil > 1.0) {
+          vector<double> mrc = mRC0(pTmiss, muonFS[0].mom(), muonFS[1].mom(), P_ISR);
+          const double mRCmin = mrc[0];
+          const double mRCmax = mrc[1];
+
+          _hist_Wmin -> fill(mRCmin);
+          _hist_Wmax -> fill(mRCmax);
+          _hist_mRCmin->fill(mRCmin);
+          _hist_mRCmax->fill(mRCmax);
+        }
+      }
+      else 
+        return;
 
       if (smuonPre)
       {
@@ -213,7 +246,7 @@ namespace Rivet
         const double mll = (muonFS[0].momentum() + muonFS[1].momentum()).mass();
         const double mRecoil = P_recoil.mass();
         const double mMiss = pTmiss.mass();
-        
+
         if (EmuonM > 40. && EmuonP > 40. && dRlmRec < 2.9 && dRlpRec < 2.9 && mll < 60. && mRecoil > 40.)
         {
           _SR_highDELTAM->fill(2.5);
@@ -399,22 +432,26 @@ namespace Rivet
       // normalize(_h["YYYY"], crossSection() / picobarn);      // normalize to generated cross-section in pb (no cuts)
       scale(_hist_mRCmin, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
       scale(_hist_mRCmax, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mLSPmax, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mRCLSP, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mDM_RC, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mDM_LSP, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mll, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
-      scale(_hist_Elm, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
-      scale(_hist_Elp, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
-      scale(_hist_dRlpRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
-      scale(_hist_dRlmRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
-      scale(_hist_dRll, crossSection() / femtobarn / sumW());    // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mRecoil, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
-      scale(_hist_mMiss, crossSection() / femtobarn / sumW());   // norm to generated cross-section in pb (after cuts)
 
-      scale(_SR_highDELTAM, sf * Lint / sumW());
-      scale(_SR_midDELTAM, sf * Lint / sumW());
-      scale(_SR_lowDELTAM, sf * Lint / sumW());
+      scale(_hist_Wmin, crossSection() / femtobarn / sumW());
+      scale(_hist_Wmax, crossSection() / femtobarn / sumW());
+
+      // scale(_hist_mLSPmax, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mRCLSP, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mDM_RC, crossSection() / femtobarn / sumW());  // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mDM_LSP, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mll, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_Elm, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_Elp, crossSection() / femtobarn / sumW());     // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_dRlpRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_dRlmRec, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_dRll, crossSection() / femtobarn / sumW());    // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mRecoil, crossSection() / femtobarn / sumW()); // norm to generated cross-section in pb (after cuts)
+      // scale(_hist_mMiss, crossSection() / femtobarn / sumW());   // norm to generated cross-section in pb (after cuts)
+
+      // scale(_SR_highDELTAM, sf * Lint / sumW());
+      // scale(_SR_midDELTAM, sf * Lint / sumW());
+      // scale(_SR_lowDELTAM, sf * Lint / sumW());
 
       // _Cutflows.scale(sf * Lint / numEvents());
       // MSG_INFO("CUTFLOWS Smuon + ETmiss Case:\n\n"
@@ -433,6 +470,54 @@ namespace Rivet
       //          << _CF_MidDM);
       df.close();
       MSG_INFO("Close file" << dfname);
+    }
+
+    vector<double> mRC0(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR) const
+    {
+      // MSG_INFO("Tag 1");
+      FourMomentum CM = met + l1 + l2;
+
+      FourMomentum bmet;
+      FourMomentum bl1;
+      FourMomentum bl2;
+      FourMomentum pISR;
+
+      LorentzTransform LT = LorentzTransform::mkFrameTransformFromBeta(CM.betaVec());
+
+      pISR = LT.transform(ISR);
+      bmet = LT.transform(met);
+      bl1 = LT.transform(l1);
+      bl2 = LT.transform(l2);
+
+      const double ss = (bmet.E() + bl1.E() + bl2.E()) / 2.;
+      const double pMiss = bmet.p3().mod();
+      const double pL1 = bl1.p3().mod();
+      const double pL2 = bl2.p3().mod();
+      const double EL1 = bl1.E();
+      const double EL2 = bl2.E();
+      const double EI1 = ss - EL1;
+      const double EI2 = ss - EL2;
+
+      if (EI1 > 0. && EI2 > 0. && EI1 + EI2 > pMiss && pL1 + pL2 > pMiss && abs(EI1 - EI2) < pMiss && abs(pL1 - pL2) < pMiss)
+      {
+        const vector<double> pos_C = solveXY(EI1, EI2, pMiss);
+        const vector<double> pos_B = solveXY(pL1, pL2, pMiss);
+
+        const double pMax2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
+        const double pMin2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] - pos_C[1], 2);
+
+        const double mYmax = sqrt(ss * ss - pMin2);
+        const double mYmin = sqrt(ss * ss - pMax2);
+
+        // return mYmin;
+        const vector<double> mrc = {mYmin, mYmax};
+        return mrc;
+      }
+      else
+      {
+        const vector<double> mYmax = {-1.0, -1.0};
+        return mYmax;
+      }
     }
 
     vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR, const double &mI = 0.0) const
@@ -534,6 +619,9 @@ namespace Rivet
     Histo1DPtr _hist_mRCLSP;
     Histo1DPtr _hist_mDM_RC;
     Histo1DPtr _hist_mDM_LSP;
+
+    Histo1DPtr _hist_Wmin;
+    Histo1DPtr _hist_Wmax;
 
     ///@}
     Cutflows _Cutflows;
