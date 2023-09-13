@@ -9,12 +9,56 @@
 #include "Rivet/Projections/DressedLeptons.hh"
 #include "Rivet/Projections/MissingMomentum.hh"
 #include "Rivet/Tools/Cutflow.hh"
+#include "HepMC3/GenParticle.h"
 #include <tuple>
 #include <iostream>
 #include <fstream>
+#include <unordered_map>
+#include <vector>
 
 namespace Rivet
 {
+
+  class DataFrame
+  {
+  private:
+    std::vector<std::unordered_map<std::string, double>> rows;
+
+  public:
+    void addRow(const std::unordered_map<std::string, double> &row)
+    {
+      rows.push_back(row);
+    }
+
+    void toCSV(const std::string &filename)
+    {
+      std::ofstream file(filename);
+
+      if (!file.is_open())
+      {
+        std::cerr << "Failed to open the file." << std::endl;
+        return;
+      }
+
+      for (const auto &pair : rows[0])
+      {
+        file << pair.first << ",";
+      }
+      file << "\n";
+
+      for (const auto &row : rows)
+      {
+        for (const auto &pair : row)
+        {
+          file << pair.second << ",";
+        }
+        file << "\n";
+      }
+
+      file.close();
+      std::cout << "Data written to " << filename << std::endl;
+    }
+  };
 
   /// @brief Add a short analysis description here
   class CEPC_MASS : public Analysis
@@ -35,13 +79,9 @@ namespace Rivet
       // The basic final-state projection:
       // all final-state particles within
       // the given eta acceptance
-      std::ofstream df;
-      // dfname = getOption("DFNAME");
-      // dfname.append(".csv");
+      dfname = getOption("DFNAME");
+      dfname.append(".csv");
 
-      // df.open(dfname, std::ios::out | std::ios::app);
-      // MSG_INFO("Open file: " << dfname );
-      // df << "Nmuon,Emiss,Njet,mVV,mRecoil,mMiss,mRCmin,mRCmax,mRCLSP,mLSPmax\n";
       // Initialise and register projections
 
       // The basic final-state projection:
@@ -142,13 +182,40 @@ namespace Rivet
         FourMomentum P_ISR = P_Sum - pTmiss - muonFS[0].momentum() - elecFS[0].momentum();
         FourMomentum P_recoil = P_Sum - muonFS[0].momentum() - elecFS[0].momentum();
         const double mRecoil = P_recoil.mass();
+        const double Emiss = pTmiss.E();
+
         // MSG_INFO("OSSF Pair Found");
         if (mRecoil > 1.0)
         {
-          vector<double> mrc = mRC0(pTmiss, muonFS[0].mom(), elecFS[0].mom(), P_ISR);
+          const double mVV = (muonFS[0].momentum() + elecFS[0].momentum()).mass();
+          vector<double> mrc = mRC(pTmiss, muonFS[0].mom(), elecFS[0].mom(), P_ISR, 0.);
           const double mRCmin = mrc[0];
           const double mRCmax = mrc[1];
+          const double mLSPmax = mrc[2];
+          const double mRCLSP = mrc[3];
 
+          FourMomentum P_Wa;
+          FourMomentum P_Wb;
+
+          const HepMC3::GenEvent *genEvent = event.genEvent();
+
+          for (HepMC3::ConstGenParticlePtr particle : genEvent->particles())
+          {
+            if (particle->pid() == 24 || particle->pid() == -24)
+            {
+              if (hasChild(particle, 13))
+              {
+                P_Wa = particle->momentum();
+              }
+              if (hasChild(particle, 11))
+              {
+                P_Wb = particle->momentum();
+              }
+            }
+          }
+
+          const double mWa = P_Wa.mass();
+          const double mWb = P_Wb.mass();
           _hist_Wmin->fill(mRCmin);
           _hist_Wmax->fill(mRCmax);
           _Norm_hist_Wmin->fill(mRCmin);
@@ -157,6 +224,20 @@ namespace Rivet
           _hist_mRCmax->fill(mRCmax);
           _Norm_hist_mRCmin->fill(mRCmin);
           _Norm_hist_mRCmax->fill(mRCmax);
+
+          df.addRow({{"mRCmin", mRCmin},
+                     {"mRCmax", mRCmax},
+                     {"mRCLSP", mRCLSP},
+                     {"mLSPmax", mLSPmax},
+                     {"mRecoil", mRecoil},
+                     {"pVa", muonFS[0].p3().mod()},
+                     {"pVb", elecFS[0].p3().mod()},
+                     {"mVV", mVV},
+                     {"EMiss", Emiss},
+                     {"pMiss", pTmiss.p3().mod()},
+                     {"mWa", mWa},
+                     {"mWb", mWb}
+                     });
         }
       }
       else
@@ -169,6 +250,8 @@ namespace Rivet
       const double sf = crossSection() / femtobarn;
       const double Lint = 5.05e3;
       double norm = sf * Lint;
+      MSG_INFO("data file is " << dfname);
+      df.toCSV(dfname);
 
       MSG_INFO("Norm is " << norm);
       MSG_INFO("Total Cross section is " << crossSection() / femtobarn << " femtobarn!");
@@ -182,7 +265,8 @@ namespace Rivet
       normalize(_Norm_hist_mRCmin);
       normalize(_Norm_hist_mRCmax);
     }
-    vector<double> mRC0(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR) const
+
+    vector<double> mRC(const FourMomentum &met, const FourMomentum &l1, const FourMomentum &l2, const FourMomentum &ISR, const double &mI = 0.0) const
     {
       // MSG_INFO("Tag 1");
       FourMomentum CM = met + l1 + l2;
@@ -208,19 +292,26 @@ namespace Rivet
       const double EI1 = ss - EL1;
       const double EI2 = ss - EL2;
 
-      if (EI1 > 0. && EI2 > 0. && EI1 + EI2 > pMiss && pL1 + pL2 > pMiss && abs(EI1 - EI2) < pMiss && abs(pL1 - pL2) < pMiss)
+      const double pI1max = sqrt(EI1 * EI1 - mI * mI);
+      const double pI2max = sqrt(EI2 * EI2 - mI * mI);
+
+      if (pI1max > 0. && pI2max > 0. && pI1max + pI2max > pMiss && pL1 + pL2 > pMiss && abs(pI1max - pI2max) < pMiss && abs(pL1 - pL2) < pMiss)
       {
-        const vector<double> pos_C = solveXY(EI1, EI2, pMiss);
+        const vector<double> pos_C = solveXY(pI1max, pI2max, pMiss);
         const vector<double> pos_B = solveXY(pL1, pL2, pMiss);
 
         const double pMax2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] + pos_C[1], 2);
-        const double pMin2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1] - pos_C[1], 2);
+        const double pMinX2 = pow(pos_B[0] - pos_C[0], 2);
+        const double pMinY2 = pos_B[1] > pos_C[1] ? pow(pos_B[1] - pos_C[1], 2) : 0.0;
+        const double pLSP2 = pow(pos_B[0] - pos_C[0], 2) + pow(pos_B[1], 2);
 
-        const double mYmax = sqrt(ss * ss - pMin2);
+        const double mYmax = sqrt(ss * ss - pMinX2 - pMinY2);
         const double mYmin = sqrt(ss * ss - pMax2);
+        const double mImax = sqrt(EI1 * EI1 - pos_C[0] * pos_C[0]);
+        const double mYLSP = sqrt(ss * ss - pLSP2);
 
         // return mYmin;
-        const vector<double> mrc = {mYmin, mYmax};
+        const vector<double> mrc = {mYmin, mYmax, mImax, mYLSP};
         return mrc;
       }
       else
@@ -239,8 +330,26 @@ namespace Rivet
       return pos;
     }
 
+    bool hasChild(HepMC3::ConstGenParticlePtr particle, const int &cid)
+    {
+      if (particle->end_vertex())
+      {
+        for (auto child : particle->end_vertex()->particles_out())
+        {
+          if (child->pdg_id() == cid || child->pdg_id() == -cid)
+          {
+            return true; // Found an electron or positron among the children
+          }
+        }
+      }
+      return false; // No electron or positron found among the children
+    }
+
     /// @name Histograms
     /// @{
+    std::string dfname;
+    DataFrame df;
+
     map<string, Histo1DPtr> _h;
     map<string, Profile1DPtr> _p;
     map<string, CounterPtr> _c;

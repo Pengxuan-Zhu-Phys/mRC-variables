@@ -34,7 +34,7 @@ namespace Rivet
       // dfname.append(".csv");
 
       // df.open(dfname, std::ios::out | std::ios::app);
-      // MSG_INFO("Open file: " << dfname );
+      // MSG_INFO("MSG_INFO Open file: " << dfname);
       // df << "Nmuon,Emiss,Njet,mVV,mRecoil,mMiss,mRCmin,mRCmax,mRCLSP,mLSPmax\n";
       // Initialise and register projections
 
@@ -145,6 +145,8 @@ namespace Rivet
     /// Perform the per-event analysis
     void analyze(const Event &event)
     {
+            // MSG_INFO("MSG_INFO Open file: " << dfname );
+
       // const double weight = 1.0;
       // const MissingMomentum met = apply<MissingMomentum>(event, "MET");
       // double ETmiss = met.missingEt();
@@ -178,7 +180,7 @@ namespace Rivet
 
       const FastJets &jetsAntiKt4 = apply<FastJets>(event, "jets");
       const Jets &jets = jetsAntiKt4.jetsByPt(10.0 * GeV);
-      const int njet = jets.size();
+      // const int njet = jets.size();
 
       const ParticlePair &beams = apply<Beam>(event, "Beams").beams();
       const double eC1 = beams.first.E();
@@ -192,7 +194,7 @@ namespace Rivet
       P_Sum.setPz(0.);
 
       pTmiss.setE(eC1 + eC2 + pTmiss.E());
-      const double Emiss = pTmiss.E();
+      // const double Emiss = pTmiss.E();
 
       bool smuonPre = false;
       // if (nmuon == 2 && njet == 0)
