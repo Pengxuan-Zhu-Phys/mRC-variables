@@ -6,5 +6,7 @@ Code/*.yoda
 Code/*.png
 Code/*.pdf
 Events/*
+Whizard3/*
 *.hepmc.gz
+*.hepmc
 

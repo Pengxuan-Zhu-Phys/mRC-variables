@@ -247,7 +247,7 @@ namespace Rivet
     /// Normalise histograms etc., after the run
     void finalize()
     {
-      const double sf = crossSection() / femtobarn;
+      const double sf = 409.2825;
       const double Lint = 5.05e3;
       double norm = sf * Lint;
       MSG_INFO("data file is " << dfname);
